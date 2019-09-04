@@ -91,6 +91,7 @@ class AuthorizationCodeGrant {
 
   /// The URL to which the resource owner will be redirected after they
   /// authorize this client with the authorization server.
+  /// Might be null for CLI or desktop apps.
   Uri? _redirectEndpoint;
 
   /// The scopes that the client is requesting access to.
@@ -182,7 +183,7 @@ class AuthorizationCodeGrant {
   /// query parameters provided to the redirect URL.
   ///
   /// It is a [StateError] to call this more than once.
-  Uri getAuthorizationUrl(Uri redirect,
+  Uri getAuthorizationUrl(Uri? redirect,
       {Iterable<String>? scopes, String? state}) {
     if (_state != _State.initial) {
       throw StateError('The authorization URL has already been generated.');
@@ -200,7 +201,7 @@ class AuthorizationCodeGrant {
     var parameters = {
       'response_type': 'code',
       'client_id': identifier,
-      'redirect_uri': redirect.toString(),
+      if (redirect != null) 'redirect_uri': redirect.toString(),
       'code_challenge': codeChallenge,
       'code_challenge_method': 'S256'
     };
@@ -300,7 +301,8 @@ class AuthorizationCodeGrant {
     var body = {
       'grant_type': 'authorization_code',
       'code': authorizationCode,
-      'redirect_uri': _redirectEndpoint.toString(),
+      if (_redirectEndpoint != null)
+        'redirect_uri': _redirectEndpoint.toString(),
       'code_verifier': _codeVerifier
     };
 
