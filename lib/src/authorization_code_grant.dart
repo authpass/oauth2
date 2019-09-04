@@ -88,6 +88,7 @@ class AuthorizationCodeGrant {
 
   /// The URL to which the resource owner will be redirected after they
   /// authorize this client with the authorization server.
+  /// Might be null for CLI or desktop apps.
   Uri _redirectEndpoint;
 
   /// The scopes that the client is requesting access to.
@@ -181,8 +182,11 @@ class AuthorizationCodeGrant {
     var parameters = {
       "response_type": "code",
       "client_id": this.identifier,
-      "redirect_uri": redirect.toString()
     };
+
+    if (redirect != null) {
+      parameters['redirect_uri'] = redirect.toString();
+    }
 
     if (state != null) parameters['state'] = state;
     if (scopes.isNotEmpty) parameters['scope'] = scopes.join(_delimiter);
@@ -278,8 +282,11 @@ class AuthorizationCodeGrant {
     var body = {
       "grant_type": "authorization_code",
       "code": authorizationCode,
-      "redirect_uri": this._redirectEndpoint.toString()
     };
+
+    if (this._redirectEndpoint != null) {
+      body["redirect_uri"] = this._redirectEndpoint.toString();
+    }
 
     if (_basicAuth && secret != null) {
       headers["Authorization"] = basicAuthHeader(identifier, secret);
